@@ -1,0 +1,158 @@
+;repository create for computer architecture class
+
+section .data
+    msg1 db "Digite o primeiro número binário (8 bits): ",0
+    msg2 db "Digite o segundo número binário (8 bits): ",0
+    msg3 db "Escolha a operação (1 para adição, 2 para subtração, 3 para multiplicação, 4 para divisão): ",0
+    msg4 db "Resultado: ",0
+
+section .bss
+    num1 resb 9
+    num2 resb 9
+    result resb 9
+
+section .text
+    global _start
+
+_start:
+    ; mostra mensagem para digitar o primeiro número binário
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg1
+    mov edx, 39
+    int 80h
+
+    ; ler o primeiro número binário
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, num1
+    mov edx, 9
+    int 80h
+
+    ; mostre mensagem para digitar o segundo número binário
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg2
+    mov edx, 41
+    int 80h
+
+    ; ler o segundo número binário
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, num2
+    mov edx, 9
+    int 80h
+
+    ; mostra mensagem para escolher a operação
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg3
+    mov edx, 62
+    int 80h
+
+    ; ler a escolha da operação
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, result
+    mov edx, 1
+    int 80h
+
+    ; conversão da escolha da operação em um número
+    sub byte [result], '0'
+
+    ; realiza a operação (adição, subtração, multiplicação ou divisão)
+    cmp byte [result], 1
+    je addition
+    cmp byte [result], 2
+    je subtraction
+    cmp byte [result], 3
+    je multiplication
+    cmp byte [result], 4
+    je division
+
+addition:
+    ; realiza a adição
+    mov eax, 0
+    mov ecx, 9
+    xor edx, edx
+add_loop:
+    shl eax, 1
+    sub dl, '0'
+    add eax, edx
+    inc ecx
+    cmp ecx, 18
+    je convert_back
+    jmp add_loop
+
+subtraction:
+    ; realiza a subtração
+    mov eax, 0
+    mov ecx, 9
+    xor edx, edx
+sub_loop:
+    shl eax, 1
+    sub dl, '0'
+    sub eax, edx
+    inc ecx
+    cmp ecx, 18
+    je convert_back
+    jmp sub_loop
+
+multiplication:
+    ; realiza multiplicação
+    mov eax, 0
+    mov ecx, 9
+    xor edx, edx
+mul_loop:
+    shl eax, 1
+    sub dl, '0'
+    imul eax, edx
+    inc ecx
+    cmp ecx, 18
+    je convert_back
+    jmp mul_loop
+
+division:
+    ; realiza a divisão
+    mov eax, 0
+    mov ecx, 9
+    xor edx, edx
+div_loop:
+    shl eax, 1
+    sub dl, '0'
+    idiv eax, edx
+    inc ecx
+    cmp ecx, 18
+    je convert_back
+    jmp div_loop
+
+convert_back:
+    ; converte o resultado de volta para binário
+    mov ecx, 9
+convert_back_loop:
+    dec ecx
+    shl eax, 1
+    rcl byte [result], 1
+    jnc no_carry
+    inc byte [result]
+no_carry:
+    cmp ecx, 0
+    jne convert_back_loop
+
+    ; mostra o resultado 
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg4
+    mov edx, 10
+    int 80h
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, result
+    mov edx, 9
+    int 80h
+
+    ; Encerra o programa
+    mov eax, 1
+    mov ebx, 0
+    int 80h
